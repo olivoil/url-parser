@@ -62,7 +62,7 @@ string will not be in the parsed object. Examples are shown for the URL
 
     Example: `'#hash'`
 
-* `domain`: The 'domain' portion of the hostname parsed using (Mozilla's TLD list)[https://publicsuffix.org/list/effective_tld_names.dat]
+* `domain`: The 'domain' portion of the hostname parsed using [Mozilla's TLD list](https://publicsuffix.org/list/effective_tld_names.dat)
 
     Example: `'host.com'`
 
