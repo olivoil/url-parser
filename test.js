@@ -20,11 +20,7 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var assert = require('assert');
-var util = require('util');
-
 var url = require('./url');
-
-test('god', function() {
 
 // URLs to parse, and expected data
 // { url : parsed }
@@ -42,7 +38,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'HTTP://www.example.com' : {
@@ -52,7 +50,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'http://www.ExAmPlE.com/' : {
@@ -62,7 +62,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'http://user:pw@www.ExAmPlE.com/' : {
@@ -73,7 +75,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'http://USER:PW@www.ExAmPlE.com/' : {
@@ -84,7 +88,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'http://user@www.example.com/' : {
@@ -95,7 +101,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'http://user%3Apw@www.example.com/' : {
@@ -106,7 +114,9 @@ var parseTests = {
     'host': 'www.example.com',
     'hostname': 'www.example.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com',
+    'subdomain': 'www'
   },
 
   'http://x.com/path?that\'s#all, folks' : {
@@ -119,7 +129,8 @@ var parseTests = {
     'query': 'that%27s',
     'pathname': '/path',
     'hash': '#all,%20folks',
-    'path': '/path?that%27s'
+    'path': '/path?that%27s',
+    'domain': 'x.com'
   },
 
   'HTTP://X.COM/Y' : {
@@ -129,7 +140,8 @@ var parseTests = {
     'host': 'x.com',
     'hostname': 'x.com',
     'pathname': '/Y',
-    'path': '/Y'
+    'path': '/Y',
+    'domain': 'x.com'
   },
 
   // an unexpected invalid char in the hostname.
@@ -143,7 +155,9 @@ var parseTests = {
     'search': '?d=e',
     'query': 'd=e',
     'hash': '#f%20g%3Ch%3Ei',
-    'path': '/*a/b/c?d=e'
+    'path': '/*a/b/c?d=e',
+    'domain': 'y.com',
+    'subdomain': 'x'
   },
 
   // make sure that we don't accidentally lcast the path parts.
@@ -157,7 +171,9 @@ var parseTests = {
     'search': '?d=e',
     'query': 'd=e',
     'hash': '#f%20g%3Ch%3Ei',
-    'path': '/*A/b/c?d=e'
+    'path': '/*A/b/c?d=e',
+    'domain': 'y.com',
+    'subdomain': 'x'
   },
 
   'http://x...y...#p': {
@@ -196,7 +212,9 @@ var parseTests = {
     'search': '?id=news',
     'query': 'id=news',
     'pathname': '/blog/categories',
-    'path': '/blog/categories?id=news'
+    'path': '/blog/categories?id=news',
+    'domain': 'narwhaljs.org',
+    'subdomain': 'www'
   },
 
   'http://mt0.google.com/vt/lyrs=m@114&hl=en&src=api&x=2&y=2&z=3&s=' : {
@@ -206,7 +224,9 @@ var parseTests = {
     'host': 'mt0.google.com',
     'hostname': 'mt0.google.com',
     'pathname': '/vt/lyrs=m@114&hl=en&src=api&x=2&y=2&z=3&s=',
-    'path': '/vt/lyrs=m@114&hl=en&src=api&x=2&y=2&z=3&s='
+    'path': '/vt/lyrs=m@114&hl=en&src=api&x=2&y=2&z=3&s=',
+    'domain': 'google.com',
+    'subdomain': 'mt0'
   },
 
   'http://mt0.google.com/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s=' : {
@@ -219,23 +239,26 @@ var parseTests = {
     'search': '???&hl=en&src=api&x=2&y=2&z=3&s=',
     'query': '??&hl=en&src=api&x=2&y=2&z=3&s=',
     'pathname': '/vt/lyrs=m@114',
-    'path': '/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s='
+    'path': '/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s=',
+    'domain': 'google.com',
+    'subdomain': 'mt0'
   },
 
-  'http://user:pass@mt0.google.com/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s=':
-      {
-        'href': 'http://user:pass@mt0.google.com/vt/lyrs=m@114???' +
-            '&hl=en&src=api&x=2&y=2&z=3&s=',
-        'protocol': 'http:',
-        'slashes': true,
-        'host': 'mt0.google.com',
-        'auth': 'user:pass',
-        'hostname': 'mt0.google.com',
-        'search': '???&hl=en&src=api&x=2&y=2&z=3&s=',
-        'query': '??&hl=en&src=api&x=2&y=2&z=3&s=',
-        'pathname': '/vt/lyrs=m@114',
-        'path': '/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s='
-      },
+  'http://user:pass@mt0.google.com/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s=': {
+    'href': 'http://user:pass@mt0.google.com/vt/lyrs=m@114???' +
+        '&hl=en&src=api&x=2&y=2&z=3&s=',
+    'protocol': 'http:',
+    'slashes': true,
+    'host': 'mt0.google.com',
+    'auth': 'user:pass',
+    'hostname': 'mt0.google.com',
+    'search': '???&hl=en&src=api&x=2&y=2&z=3&s=',
+    'query': '??&hl=en&src=api&x=2&y=2&z=3&s=',
+    'pathname': '/vt/lyrs=m@114',
+    'path': '/vt/lyrs=m@114???&hl=en&src=api&x=2&y=2&z=3&s=',
+    'domain': 'google.com',
+    'subdomain': 'mt0'
+  },
 
   'file:///etc/passwd' : {
     'href': 'file:///etc/passwd',
@@ -316,7 +339,8 @@ var parseTests = {
     'search': '?baz=quux',
     'query': 'baz=quux',
     'pathname': '/foo/bar',
-    'path': '/foo/bar?baz=quux'
+    'path': '/foo/bar?baz=quux',
+    'domain': 'example.com'
   },
 
   '//user:pass@example.com:8000/foo/bar?baz=quux#frag' : {
@@ -330,7 +354,8 @@ var parseTests = {
     'search': '?baz=quux',
     'query': 'baz=quux',
     'pathname': '/foo/bar',
-    'path': '/foo/bar?baz=quux'
+    'path': '/foo/bar?baz=quux',
+    'domain': 'example.com'
   },
 
   '/foo/bar?baz=quux#frag' : {
@@ -360,7 +385,8 @@ var parseTests = {
     'hostname' : 'bar.com',
     'search': '?subject=hello',
     'query': 'subject=hello',
-    'path': '?subject=hello'
+    'path': '?subject=hello',
+    'domain': 'bar.com'
   },
 
   'javascript:alert(\'hello\');' : {
@@ -375,7 +401,8 @@ var parseTests = {
     'protocol': 'xmpp:',
     'host': 'jabber.org',
     'auth': 'isaacschlueter',
-    'hostname': 'jabber.org'
+    'hostname': 'jabber.org',
+    'domain': 'jabber.org'
   },
 
   'http://atpass:foo%40bar@127.0.0.1:8080/path?search=foo#bar' : {
@@ -449,7 +476,9 @@ var parseTests = {
     'host': 'www.xn--wgv71a119e.com',
     'hostname': 'www.xn--wgv71a119e.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'xn--wgv71a119e.com',
+    'subdomain': 'www'
   },
 
   'http://example.Bücher.com/' : {
@@ -459,7 +488,9 @@ var parseTests = {
     'host': 'example.xn--bcher-kva.com',
     'hostname': 'example.xn--bcher-kva.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'xn--bcher-kva.com',
+    'subdomain': 'example'
   },
 
   'http://www.Äffchen.com/' : {
@@ -469,7 +500,9 @@ var parseTests = {
     'host': 'www.xn--ffchen-9ta.com',
     'hostname': 'www.xn--ffchen-9ta.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'xn--ffchen-9ta.com',
+    'subdomain': 'www'
   },
 
   'http://www.Äffchen.cOm*A/b/c?d=e#f g<h>i' : {
@@ -482,7 +515,9 @@ var parseTests = {
     'search': '?d=e',
     'query': 'd=e',
     'hash': '#f%20g%3Ch%3Ei',
-    'path': '/*A/b/c?d=e'
+    'path': '/*A/b/c?d=e',
+    'domain': 'xn--ffchen-9ta.com',
+    'subdomain': 'www'
   },
 
   'http://SÉLIER.COM/' : {
@@ -492,7 +527,8 @@ var parseTests = {
     'host': 'xn--slier-bsa.com',
     'hostname': 'xn--slier-bsa.com',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'xn--slier-bsa.com',
   },
 
   'http://ليهمابتكلموشعربي؟.ي؟/' : {
@@ -502,7 +538,8 @@ var parseTests = {
     'host': 'xn--egbpdaj6bu4bxfgehfvwxn.xn--egb9f',
     'hostname': 'xn--egbpdaj6bu4bxfgehfvwxn.xn--egb9f',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'xn--egbpdaj6bu4bxfgehfvwxn.xn--egb9f'
   },
 
   'http://➡.ws/➡' : {
@@ -512,7 +549,8 @@ var parseTests = {
     'host': 'xn--hgi.ws',
     'hostname': 'xn--hgi.ws',
     'pathname': '/➡',
-    'path': '/➡'
+    'path': '/➡',
+    'domain': 'xn--hgi.ws'
   },
 
   'http://bucket_name.s3.amazonaws.com/image.jpg': {
@@ -522,7 +560,8 @@ var parseTests = {
     hostname: 'bucket_name.s3.amazonaws.com',
     pathname: '/image.jpg',
     href: 'http://bucket_name.s3.amazonaws.com/image.jpg',
-    'path': '/image.jpg'
+    'path': '/image.jpg',
+    domain: 'bucket_name.s3.amazonaws.com'
   },
 
   'git+http://github.com/joyent/node.git': {
@@ -532,7 +571,8 @@ var parseTests = {
     hostname: 'github.com',
     pathname: '/joyent/node.git',
     path: '/joyent/node.git',
-    href: 'git+http://github.com/joyent/node.git'
+    href: 'git+http://github.com/joyent/node.git',
+    domain: 'github.com'
   },
 
   //if local1@domain1 is uses as a relative URL it may
@@ -614,7 +654,8 @@ var parseTests = {
     'hostname': 'example.com',
     'href': 'http://example.com/',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com'
   },
 
   'http://example.com:/a/b.html': {
@@ -624,7 +665,8 @@ var parseTests = {
     'hostname': 'example.com',
     'href': 'http://example.com/a/b.html',
     'pathname': '/a/b.html',
-    'path': '/a/b.html'
+    'path': '/a/b.html',
+    'domain': 'example.com'
   },
 
   'http://example.com:?a=b': {
@@ -636,7 +678,8 @@ var parseTests = {
     'search': '?a=b',
     'query': 'a=b',
     'pathname': '/',
-    'path': '/?a=b'
+    'path': '/?a=b',
+    'domain': 'example.com'
   },
 
   'http://example.com:#abc': {
@@ -647,7 +690,8 @@ var parseTests = {
     'href': 'http://example.com/#abc',
     'hash': '#abc',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com'
   },
 
   'http://[fe80::1]:/a/b?a=b#abc': {
@@ -671,6 +715,8 @@ var parseTests = {
     'href': 'http://-lovemonsterz.tumblr.com/rss',
     'pathname': '/rss',
     'path': '/rss',
+    'domain': 'tumblr.com',
+    'subdomain': '-lovemonsterz'
   },
 
   'http://-lovemonsterz.tumblr.com:80/rss': {
@@ -682,6 +728,8 @@ var parseTests = {
     'href': 'http://-lovemonsterz.tumblr.com:80/rss',
     'pathname': '/rss',
     'path': '/rss',
+    'domain': 'tumblr.com',
+    'subdomain': '-lovemonsterz'
   },
 
   'http://user:pass@-lovemonsterz.tumblr.com/rss': {
@@ -693,6 +741,8 @@ var parseTests = {
     'href': 'http://user:pass@-lovemonsterz.tumblr.com/rss',
     'pathname': '/rss',
     'path': '/rss',
+    'domain': 'tumblr.com',
+    'subdomain': '-lovemonsterz'
   },
 
   'http://user:pass@-lovemonsterz.tumblr.com:80/rss': {
@@ -705,6 +755,8 @@ var parseTests = {
     'href': 'http://user:pass@-lovemonsterz.tumblr.com:80/rss',
     'pathname': '/rss',
     'path': '/rss',
+    'domain': 'tumblr.com',
+    'subdomain': '-lovemonsterz'
   },
 
   'http://_jabber._tcp.google.com/test': {
@@ -715,6 +767,8 @@ var parseTests = {
     'href': 'http://_jabber._tcp.google.com/test',
     'pathname': '/test',
     'path': '/test',
+    'domain': 'google.com',
+    'subdomain': '_jabber._tcp'
   },
 
   'http://user:pass@_jabber._tcp.google.com/test': {
@@ -726,6 +780,8 @@ var parseTests = {
     'href': 'http://user:pass@_jabber._tcp.google.com/test',
     'pathname': '/test',
     'path': '/test',
+    'domain': 'google.com',
+    'subdomain': '_jabber._tcp'
   },
 
   'http://_jabber._tcp.google.com:80/test': {
@@ -737,6 +793,8 @@ var parseTests = {
     'href': 'http://_jabber._tcp.google.com:80/test',
     'pathname': '/test',
     'path': '/test',
+    'domain': 'google.com',
+    'subdomain': '_jabber._tcp'
   },
 
   'http://user:pass@_jabber._tcp.google.com:80/test': {
@@ -749,6 +807,8 @@ var parseTests = {
     'href': 'http://user:pass@_jabber._tcp.google.com:80/test',
     'pathname': '/test',
     'path': '/test',
+    'domain': 'google.com',
+    'subdomain': '_jabber._tcp'
   },
 
   'http://a@b@c/': {
@@ -793,24 +853,27 @@ var parseTests = {
 };
 
 for (var u in parseTests) {
-  var actual = url.parse(u),
-      spaced = url.parse('     \t  ' + u + '\n\t');
-      expected = parseTests[u];
+  (function(u, expected){
+    it('parses ' + u, function(){
+      var actual = url.parse(u).toJSON();
+      var spaced = url.parse('     \t  ' + u + '\n\t').toJSON();
+      var expected = parseTests[u];
 
-  Object.keys(actual).forEach(function (i) {
-    if (expected[i] === undefined && actual[i] === null) {
-      expected[i] = null;
-    }
-  });
+      Object.keys(actual).forEach(function (i) {
+        if (expected[i] === undefined && actual[i] === null) {
+          expected[i] = null;
+        }
+      });
 
-  assert.deepEqual(actual, expected);
-  assert.deepEqual(spaced, expected);
+      assert.deepEqual(actual, expected);
+      assert.deepEqual(spaced, expected);
 
-  var expected = parseTests[u].href,
-      actual = url.format(parseTests[u]);
+      var expected = parseTests[u].href,
+          actual = url.format(parseTests[u]);
 
-  assert.equal(actual, expected,
-               'format(' + u + ') == ' + u + '\nactual:' + actual);
+      assert.equal(actual, expected, 'format(' + u + ') == ' + u + '\nactual:' + actual);
+    });
+  })(u, parseTests[u]);
 }
 
 var parseTestsWithQueryString = {
@@ -833,19 +896,24 @@ var parseTestsWithQueryString = {
     'query': {},
     'search': '',
     'pathname': '/',
-    'path': '/'
+    'path': '/',
+    'domain': 'example.com'
   }
 };
 for (var u in parseTestsWithQueryString) {
-  var actual = url.parse(u, true);
-  var expected = parseTestsWithQueryString[u];
-  for (var i in actual) {
-    if (actual[i] === null && expected[i] === undefined) {
-      expected[i] = null;
+  (function(u){
+    var actual = url.parse(u, true).toJSON();
+    var expected = parseTestsWithQueryString[u];
+    for (var i in actual) {
+      if (actual[i] === null && expected[i] === undefined) {
+        expected[i] = null;
+      }
     }
-  }
 
-  assert.deepEqual(actual, expected);
+    it('parses ' + u, function(){
+      assert.deepEqual(actual, expected);
+    });
+  })(u);
 }
 
 // some extra formatting tests, just to verify
@@ -1043,13 +1111,18 @@ for (var u in formatTests) {
   delete formatTests[u].href;
   var actual = url.format(u);
   var actualObj = url.format(formatTests[u]);
-  assert.equal(actual, expect,
-               'wonky format(' + u + ') == ' + expect +
-               '\nactual:' + actual);
-  assert.equal(actualObj, expect,
-               'wonky format(' + JSON.stringify(formatTests[u]) +
-               ') == ' + expect +
-               '\nactual: ' + actualObj);
+
+  (function(u){
+    it('formats ' + u, function(){
+      assert.equal(actual, expect,
+                   'wonky format(' + u + ') == ' + expect +
+                   '\nactual:' + actual);
+      assert.equal(actualObj, expect,
+                   'wonky format(' + JSON.stringify(formatTests[u]) +
+                   ') == ' + expect +
+                   '\nactual: ' + actualObj);
+    });
+  })(u);
 }
 
 /*
@@ -1094,9 +1167,12 @@ var relativeTests = [
 relativeTests.forEach(function(relativeTest) {
   var a = url.resolve(relativeTest[0], relativeTest[1]),
       e = relativeTest[2];
-  assert.equal(a, e,
-               'resolve(' + [relativeTest[0], relativeTest[1]] + ') == ' + e +
-               '\n  actual=' + a);
+
+  it('resolves ' + relativeTest[0], function(){
+    assert.equal(a, e,
+                 'resolve(' + [relativeTest[0], relativeTest[1]] + ') == ' + e +
+                 '\n  actual=' + a);
+  });
 });
 
 
@@ -1111,7 +1187,9 @@ relativeTests.forEach(function(relativeTest) {
   [],
   {}
 ].forEach(function(val) {
-  assert.throws(function() { url.parse(val); }, TypeError);
+  it('throws for ' + val, function(){
+    assert.throws(function() { url.parse(val); }, TypeError);
+  });
 });
 
 
@@ -1404,9 +1482,12 @@ var relativeTests2 = [
 relativeTests2.forEach(function(relativeTest) {
   var a = url.resolve(relativeTest[1], relativeTest[0]),
       e = relativeTest[2];
-  assert.equal(a, e,
-               'resolve(' + [relativeTest[1], relativeTest[0]] + ') == ' + e +
-               '\n  actual=' + a);
+
+  it('resolves ' + relativeTest[1], function(){
+    assert.equal(a, e,
+                 'resolve(' + [relativeTest[1], relativeTest[0]] + ') == ' + e +
+                 '\n  actual=' + a);
+  });
 });
 
 //if format and parse are inverse operations then
@@ -1417,17 +1498,18 @@ var emptyIsImportant = {'host': true, 'hostname': ''};
 
 //format: [from, path, expected]
 relativeTests.forEach(function(relativeTest) {
-  var actual = url.resolveObject(url.parse(relativeTest[0]), relativeTest[1]),
-      expected = url.parse(relativeTest[2]);
+  it('resolveObject ' + relativeTest[0] + ', ' + relativeTest[1], function(){
+    var actual = url.resolveObject(url.parse(relativeTest[0]), relativeTest[1]),
+        expected = url.parse(relativeTest[2]);
 
+    assert.deepEqual(actual, expected);
 
-  assert.deepEqual(actual, expected);
+    expected = relativeTest[2];
+    actual = url.format(actual);
 
-  expected = relativeTest[2];
-  actual = url.format(actual);
-
-  assert.equal(actual, expected,
-               'format(' + actual + ') == ' + expected + '\nactual:' + actual);
+    assert.equal(actual, expected,
+                 'format(' + actual + ') == ' + expected + '\nactual:' + actual);
+  });
 });
 
 //format: [to, from, result]
@@ -1445,17 +1527,17 @@ if (relativeTests2[181][0] === './/g' &&
   relativeTests2.splice(181, 1);
 }
 relativeTests2.forEach(function(relativeTest) {
-  var actual = url.resolveObject(url.parse(relativeTest[1]), relativeTest[0]),
-      expected = url.parse(relativeTest[2]);
+  it('resolveObject ' + relativeTest[1], function(){
+    var actual = url.resolveObject(url.parse(relativeTest[1]), relativeTest[0]),
+        expected = url.parse(relativeTest[2]);
 
-  assert.deepEqual(actual, expected);
+    assert.deepEqual(actual, expected);
 
-  var expected = relativeTest[2],
-      actual = url.format(actual);
+    var expected = relativeTest[2],
+        actual = url.format(actual);
 
-  assert.equal(actual, expected,
-               'format(' + relativeTest[1] + ') == ' + expected +
-               '\nactual:' + actual);
-});
-
+    assert.equal(actual, expected,
+                 'format(' + relativeTest[1] + ') == ' + expected +
+                 '\nactual:' + actual);
+  });
 });

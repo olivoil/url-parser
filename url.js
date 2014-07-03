@@ -20,6 +20,7 @@
 // USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 var punycode = require('punycode');
+var tld = require('tldjs');
 
 exports.parse = urlParse;
 exports.resolve = urlResolve;
@@ -41,6 +42,8 @@ function Url() {
   this.pathname = null;
   this.path = null;
   this.href = null;
+  this.domain = null;
+  this.subdomain = null;
 }
 
 // Reference: RFC 3986, RFC 1808, RFC 2396
@@ -99,6 +102,25 @@ function urlParse(url, parseQueryString, slashesDenoteHost) {
   var u = new Url;
   u.parse(url, parseQueryString, slashesDenoteHost);
   return u;
+}
+
+Url.prototype.toJSON = function(){
+  return {
+    protocol: this.protocol,
+    slashes: this.slashes,
+    auth: this.auth,
+    host: this.host,
+    port: this.port,
+    hostname: this.hostname,
+    hash: this.hash,
+    search: this.search,
+    query: this.query,
+    pathname: this.pathname,
+    path: this.path,
+    href: this.href,
+    domain: this.domain,
+    subdomain: this.subdomain
+  }
 }
 
 Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
@@ -329,8 +351,11 @@ Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
     this.path = p + s;
   }
 
+  this.parseDomain();
+
   // finally, reconstruct the href based on what has been validated.
   this.href = this.format();
+
   return this;
 };
 
@@ -450,6 +475,7 @@ Url.prototype.resolveObject = function(relative) {
       result.path = result.pathname = '/';
     }
 
+    result.parseDomain();
     result.href = result.format();
     return result;
   }
@@ -467,6 +493,7 @@ Url.prototype.resolveObject = function(relative) {
       Object.keys(relative).forEach(function(k) {
         result[k] = relative[k];
       });
+      result.parseDomain();
       result.href = result.format();
       return result;
     }
@@ -496,6 +523,8 @@ Url.prototype.resolveObject = function(relative) {
       result.path = p + s;
     }
     result.slashes = result.slashes || relative.slashes;
+
+    result.parseDomain();
     result.href = result.format();
     return result;
   }
@@ -578,6 +607,8 @@ Url.prototype.resolveObject = function(relative) {
       result.path = (result.pathname ? result.pathname : '') +
                     (result.search ? result.search : '');
     }
+
+    result.parseDomain();
     result.href = result.format();
     return result;
   }
@@ -592,6 +623,7 @@ Url.prototype.resolveObject = function(relative) {
     } else {
       result.path = null;
     }
+    result.parseDomain();
     result.href = result.format();
     return result;
   }
@@ -674,9 +706,23 @@ Url.prototype.resolveObject = function(relative) {
   }
   result.auth = relative.auth || result.auth;
   result.slashes = result.slashes || relative.slashes;
+  result.parseDomain();
   result.href = result.format();
   return result;
 };
+
+Url.prototype.parseDomain = function(){
+  if (this.hostname) {
+    var domain = tld.getDomain(this.hostname);
+    var subdomain = tld.getSubdomain(this.hostname);
+
+    this.domain = domain ? domain : null;
+    this.subdomain  = subdomain ? subdomain : null;
+  } else {
+    this.domain = null;
+    this.subdomain = null;
+  }
+}
 
 Url.prototype.parseHost = function() {
   var host = this.host;

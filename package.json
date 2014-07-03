@@ -1,22 +1,28 @@
 {
-  "name": "url",
-  "description": "The core `url` packaged standalone for use with Browserify.",
-  "version": "0.10.1",
+  "name": "url-parser",
+  "description": "URL parser extracted from node.js",
+  "version": "0.0.1",
+  "license": "MIT",
   "dependencies": {
-    "punycode": "1.2.4"
+    "punycode": "1.2.4",
+    "tldjs": "git://github.com/olivoil/tld.js"
   },
   "main": "./url.js",
   "devDependencies": {
     "assert": "1.1.1",
+    "component-test": "git://github.com/olivoil/component-test",
     "mocha": "1.18.2",
-    "zuul": "1.6.3"
+    "zuul": "1.8.0",
+    "bump": "git://github.com/ianstormtaylor/bump"
   },
   "scripts": {
-    "test": "mocha --ui qunit test.js && zuul -- test.js",
-    "test-local": "zuul --local -- test.js"
+    "test": "mocha --ui bdd test.js && zuul -- test.js",
+    "test-browserify": "zuul --local -- test.js",
+    "test-zuul": "zuul -- test.js",
+    "test-component": "component-test browser"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/defunctzombie/node-url.git"
+    "url": "https://github.com/olivoil/url-parser.git"
   }
 }

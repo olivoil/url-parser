@@ -1,11 +1,9 @@
-# node-url
+# url-parser
 
-[![Build Status](https://travis-ci.org/defunctzombie/node-url.svg?branch=master)](https://travis-ci.org/defunctzombie/node-url)
-
-This module has utilities for URL resolution and parsing meant to have feature parity with node.js core [url](http://nodejs.org/api/url.html) module.
+This module has utilities for URL resolution and parsing.
 
 ```js
-var url = require('url');
+var url = require('url-parser');
 ```
 
 ## api
@@ -14,7 +12,7 @@ Parsed URL objects have some or all of the following fields, depending on
 whether or not they exist in the URL string. Any parts that are not in the URL
 string will not be in the parsed object. Examples are shown for the URL
 
-`'http://user:pass@host.com:8080/p/a/t/h?query=string#hash'`
+`'http://user:pass@sub.host.com:8080/p/a/t/h?query=string#hash'`
 
 * `href`: The full URL that was originally parsed. Both the protocol and host are lowercased.
 
@@ -27,7 +25,7 @@ string will not be in the parsed object. Examples are shown for the URL
 * `host`: The full lowercased host portion of the URL, including port
   information.
 
-    Example: `'host.com:8080'`
+    Example: `'sub.host.com:8080'`
 
 * `auth`: The authentication information portion of a URL.
 
@@ -35,7 +33,7 @@ string will not be in the parsed object. Examples are shown for the URL
 
 * `hostname`: Just the lowercased hostname portion of the host.
 
-    Example: `'host.com'`
+    Example: `'sub.host.com'`
 
 * `port`: The port number portion of the host.
 
@@ -63,6 +61,14 @@ string will not be in the parsed object. Examples are shown for the URL
 * `hash`: The 'fragment' portion of the URL including the pound-sign.
 
     Example: `'#hash'`
+
+* `domain`: The 'domain' portion of the hostname parsed using (Mozilla's TLD list)[https://publicsuffix.org/list/effective_tld_names.dat]
+
+    Example: `'host.com'`
+
+* `subdomain`: The 'subdomain' portion of the hostname
+
+    Example: `'sub'`
 
 The following methods are provided by the URL module:
 
@@ -106,3 +112,15 @@ an anchor tag.  Examples:
     url.resolve('/one/two/three', 'four')         // '/one/two/four'
     url.resolve('http://example.com/', '/one')    // 'http://example.com/one'
     url.resolve('http://example.com/one', '/two') // 'http://example.com/two'
+
+## acknowledgement
+
+Built with:
+
+* [node url module](http://nodejs.org/api/url.html)
+* [node-url](https://github.com/defunctzombie/node-url)
+* [tld.js](https://github.com/oncletom/tld.js)
+
+## license
+
+MIT
