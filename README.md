@@ -115,7 +115,7 @@ an anchor tag.  Examples:
 
 ## acknowledgement
 
-* forked from [node url module](http://nodejs.org/api/url.html)
+* forked from [node-url](https://github.com/defunctzombie/node-url)
 * added domain/subdomain parsing from [tld.js](https://github.com/oncletom/tld.js)
 
 ## license
