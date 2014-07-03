@@ -117,9 +117,8 @@ an anchor tag.  Examples:
 
 Built with:
 
-* [node url module](http://nodejs.org/api/url.html)
-* [node-url](https://github.com/defunctzombie/node-url)
-* [tld.js](https://github.com/oncletom/tld.js)
+* forked from [node url module](http://nodejs.org/api/url.html)
+* added domain/subdomain parsing from [tld.js](https://github.com/oncletom/tld.js)
 
 ## license
 
