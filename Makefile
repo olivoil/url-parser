@@ -1,7 +1,7 @@
 BUMP = ./node_modules/.bin/bump
 
 test:
-	@npm test
+	@mocha --ui bdd test.js
 
 test-browserify:
 	@npm run-script test-browserify

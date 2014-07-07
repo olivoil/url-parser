@@ -1,11 +1,13 @@
 {
   "name": "url-parser",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "license": "MIT",
   "repository": "olivoil/url-parser",
   "description": "URL parser extracted from node.js",
   "main": "url.js",
-  "scripts": ["url.js"],
+  "scripts": [
+    "url.js"
+  ],
   "dependencies": {
     "bestiejs/punycode.js": "*",
     "component/querystring": "*",

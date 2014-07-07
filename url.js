@@ -81,6 +81,10 @@ var protocolPattern = /^([a-z0-9.+-]+:)/i,
       'javascript': true,
       'javascript:': true
     },
+    domainlessProtocol = {
+      'file': true,
+      'file:': true
+    },
     // protocols that always contain a // bit.
     slashedProtocol = {
       'http': true,
@@ -712,7 +716,7 @@ Url.prototype.resolveObject = function(relative) {
 };
 
 Url.prototype.parseDomain = function(){
-  if (this.hostname) {
+  if (this.hostname && !domainlessProtocol[this.protocol]) {
     var domain = tld.getDomain(this.hostname);
     var subdomain = tld.getSubdomain(this.hostname);
 

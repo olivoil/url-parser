@@ -320,6 +320,16 @@ var parseTests = {
     'path': '/etc/node/'
   },
 
+  'file://evil.com/script.js' : {
+    'href': 'file://evil.com/script.js',
+    'protocol': 'file:',
+    'slashes': true,
+    'pathname': '/script.js',
+    'hostname': 'evil.com',
+    'host': 'evil.com',
+    'path': '/script.js'
+  },
+
   'http:/baz/../foo/bar' : {
     'href': 'http:/baz/../foo/bar',
     'protocol': 'http:',
@@ -394,6 +404,13 @@ var parseTests = {
     'protocol': 'javascript:',
     'pathname': 'alert(\'hello\');',
     'path': 'alert(\'hello\');'
+  },
+
+  'javascript:evil.com/script.js' : {
+    'href': 'javascript:evil.com/script.js',
+    'protocol': 'javascript:',
+    'pathname': 'evil.com/script.js',
+    'path': 'evil.com/script.js'
   },
 
   'xmpp:isaacschlueter@jabber.org' : {
